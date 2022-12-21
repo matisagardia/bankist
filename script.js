@@ -109,9 +109,16 @@ const calcDisplayBalance = function(movements) {
 calcDisplayBalance(account1.movements);
 
 const calcDisplaySummary = function (movements) {
-  //Filter all the positive moves and the accumulates all to display on the summary below the page
+  //Filter all the positive and negative moves and the accumulates all to display on the summary below the page
+  //Calculates some percentaje of the deposits to generate the interest label
   const incomes = movements.filter(mov => mov > 0).reduce((acc, mov) => acc + mov, 0);
-  labelSumIn.textContent = `${incomes} $`;
+  labelSumIn.textContent = `${incomes}$`;
+
+  const out = movements.filter(mov => mov < 0).reduce((acc, mov) => acc + mov, 0);
+  labelSumOut.textContent = `${Math.abs(out)}$`;
+
+  const interest = movements.filter(mov => mov > 0).map(mov => mov * 1.2/100).reduce((acc, mov) => acc + mov, 0);
+  labelSumInterest.textContent = `${interest}$`;
 }
 
 calcDisplaySummary(account1.movements);
@@ -126,3 +133,13 @@ const createUsername = function(accs) {
 
 createUsername(accounts);
 
+// Create the variable for the current account inserted on the login, but it is empty. Then, we create an eventlistener for the login username field
+// so when the user inserts the username and clicks on login, the .find method looks for the account with that username and stores it on the currentAccount.
+
+let currentAccount;
+
+btnLogin.addEventListener('click', (e) => {
+  e.preventDefault();
+  currentAccount = accounts.find(acc => acc.username === inputLoginUsername.value);
+  console.log(currentAccount);
+});
