@@ -97,8 +97,6 @@ const displayMovements = function(movements) {
 });
 };
 
-displayMovements(account1.movements);
-
 
 const calcDisplayBalance = function(movements) {
   // Use the reduce method to add the balance values and display it.
@@ -106,7 +104,6 @@ const calcDisplayBalance = function(movements) {
   labelBalance.textContent = `${balance} $`;
 };
 
-calcDisplayBalance(account1.movements);
 
 const calcDisplaySummary = function (movements) {
   //Filter all the positive and negative moves and the accumulates all to display on the summary below the page
@@ -121,8 +118,6 @@ const calcDisplaySummary = function (movements) {
   labelSumInterest.textContent = `${interest}$`;
 }
 
-calcDisplaySummary(account1.movements);
-
 const createUsername = function(accs) {
   // it receives an array, loops through it and add the username key to each object of the array. The username key is the owner of the account with 
   // array methods in order to get the first two letters of the name and lastname.
@@ -131,7 +126,9 @@ const createUsername = function(accs) {
   });
 };
 
+
 createUsername(accounts);
+
 
 // Create the variable for the current account inserted on the login, but it is empty. Then, we create an eventlistener for the login username field
 // so when the user inserts the username and clicks on login, the .find method looks for the account with that username and stores it on the currentAccount.
@@ -145,5 +142,10 @@ btnLogin.addEventListener('click', (e) => {
   if(currentAccount?.pin === Number(inputLoginPin.value)) {
     labelWelcome.textContent = `Welcome back, ${currentAccount.owner.split(' ')[0]}`;
     containerApp.style.opacity = 100;
+
+
+    displayMovements(currentAccount.movements);
+    calcDisplaySummary(currentAccount.movements);
+    calcDisplayBalance(currentAccount.movements);
   }
 });
