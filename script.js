@@ -75,22 +75,13 @@ const inputClosePin = document.querySelector('.form__input--pin');
 const movements = [200, 450, -400, 3000, -650, -130, 70, 1300];
 
 
-
-// const eurToUsd = 1.1;
-
-// const movesArray = movements.map(mov => mov * eurToUsd);
-// console.log(movesArray);
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-
-
-/////////////////////////////////////////////////
-
-
-// This function loops over the movements array, check if positive (deposit) or negative (withdraw) and create a variable that changes
-// the variables inside the container based on the data. Then inserts it to the html by the insertAdjacentHTML method.
 
 const displayMovements = function(movements) {
+  // This function loops over the movements array, check if positive (deposit) or negative (withdraw) and create a variable that changes
+// the variables inside the container based on the data. Then inserts it to the html by the insertAdjacentHTML method.
   containerMovements.innerHTML = '';
 
   movements.forEach((move, i) => {
@@ -109,13 +100,29 @@ const displayMovements = function(movements) {
 displayMovements(account1.movements);
 
 
+const calcDisplayBalance = function(movements) {
+  // Use the reduce method to add the balance values and display it.
+  const balance = movements.reduce((acc, value) => acc + value, 0);
+  labelBalance.textContent = `${balance} $`;
+};
+
+calcDisplayBalance(account1.movements);
+
+const calcDisplaySummary = function (movements) {
+  //Filter all the positive moves and the accumulates all to display on the summary below the page
+  const incomes = movements.filter(mov => mov > 0).reduce((acc, mov) => acc + mov, 0);
+  labelSumIn.textContent = `${incomes} $`;
+}
+
+calcDisplaySummary(account1.movements);
+
 const createUsername = function(accs) {
+  // it receives an array, loops through it and add the username key to each object of the array. The username key is the owner of the account with 
+  // array methods in order to get the first two letters of the name and lastname.
   accs.forEach(acc => {
     acc.username = acc.owner.toLowerCase().split(' ').map(name => name[0]).join('');
   });
 };
 
-
 createUsername(accounts);
-
 
