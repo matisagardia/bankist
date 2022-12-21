@@ -135,11 +135,15 @@ createUsername(accounts);
 
 // Create the variable for the current account inserted on the login, but it is empty. Then, we create an eventlistener for the login username field
 // so when the user inserts the username and clicks on login, the .find method looks for the account with that username and stores it on the currentAccount.
+// Then, at the if statement, we check with the ? if the current account is true, and if true, then check for the value of inserted pin against the user pin.
 
 let currentAccount;
 
 btnLogin.addEventListener('click', (e) => {
   e.preventDefault();
   currentAccount = accounts.find(acc => acc.username === inputLoginUsername.value);
-  console.log(currentAccount);
+  if(currentAccount?.pin === Number(inputLoginPin.value)) {
+    labelWelcome.textContent = `Welcome back, ${currentAccount.owner.split(' ')[0]}`;
+    containerApp.style.opacity = 100;
+  }
 });
