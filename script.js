@@ -79,12 +79,12 @@ const movements = [200, 450, -400, 3000, -650, -130, 70, 1300];
 
 
 
-const displayMovements = function(movements) {
+const displayMovements = function(acc) {
   // This function loops over the movements array, check if positive (deposit) or negative (withdraw) and create a variable that changes
 // the variables inside the container based on the data. Then inserts it to the html by the insertAdjacentHTML method.
   containerMovements.innerHTML = '';
 
-  movements.forEach((move, i) => {
+  acc.movements.forEach((move, i) => {
 
     const type = move > 0 ? 'deposit' : 'withdrawal';
 
@@ -98,24 +98,25 @@ const displayMovements = function(movements) {
 };
 
 
-const calcDisplayBalance = function(movements) {
+const calcDisplayBalance = function(acc) {
   // Use the reduce method to add the balance values and display it.
-  const balance = movements.reduce((acc, value) => acc + value, 0);
+  const balance = acc.movements.reduce((acc, value) => acc + value, 0);
   labelBalance.textContent = `${balance} $`;
 };
 
 
-const calcDisplaySummary = function (movements) {
+const calcDisplaySummary = function (acc) {
+  //Receives an account as paramenter
   //Filter all the positive and negative moves and the accumulates all to display on the summary below the page
-  //Calculates some percentaje of the deposits to generate the interest label
-  const incomes = movements.filter(mov => mov > 0).reduce((acc, mov) => acc + mov, 0);
+  //Calculates some percentaje of the deposits to generate the interest label based on each account interest
+  const incomes = acc.movements.filter(mov => mov > 0).reduce((acc, mov) => acc + mov, 0);
   labelSumIn.textContent = `${incomes}$`;
 
-  const out = movements.filter(mov => mov < 0).reduce((acc, mov) => acc + mov, 0);
+  const out = acc.movements.filter(mov => mov < 0).reduce((acc, mov) => acc + mov, 0);
   labelSumOut.textContent = `${Math.abs(out)}$`;
 
-  const interest = movements.filter(mov => mov > 0).map(mov => mov * 1.2/100).reduce((acc, mov) => acc + mov, 0);
-  labelSumInterest.textContent = `${interest}$`;
+  const interest = acc.movements.filter(mov => mov > 0).map(mov => mov * acc.interestRate/100).reduce((acc, mov) => acc + mov, 0);
+  labelSumInterest.textContent = `${interest.toFixed(2)}$`;
 }
 
 const createUsername = function(accs) {
@@ -133,19 +134,24 @@ createUsername(accounts);
 // Create the variable for the current account inserted on the login, but it is empty. Then, we create an eventlistener for the login username field
 // so when the user inserts the username and clicks on login, the .find method looks for the account with that username and stores it on the currentAccount.
 // Then, at the if statement, we check with the ? if the current account is true, and if true, then check for the value of inserted pin against the user pin.
+// Inside the conditional, we set the welcome message to the name and changes the opacity of the body, which makes the page visible.
+// Also, restes the input values to zero and call the rest of the functions to show the movements.
+
 
 let currentAccount;
 
 btnLogin.addEventListener('click', (e) => {
   e.preventDefault();
   currentAccount = accounts.find(acc => acc.username === inputLoginUsername.value);
+
   if(currentAccount?.pin === Number(inputLoginPin.value)) {
     labelWelcome.textContent = `Welcome back, ${currentAccount.owner.split(' ')[0]}`;
     containerApp.style.opacity = 100;
-
-
-    displayMovements(currentAccount.movements);
-    calcDisplaySummary(currentAccount.movements);
-    calcDisplayBalance(currentAccount.movements);
+    inputLoginPin.value = '';
+    inputLoginUsername.value = '';
+    inputLoginPin.blur();
+    displayMovements(currentAccount);
+    calcDisplaySummary(currentAccount);
+    calcDisplayBalance(currentAccount);
   }
 });
