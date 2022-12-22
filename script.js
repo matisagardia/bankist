@@ -138,12 +138,14 @@ const updateUI = function(acc) {
 }
 
 
+// EVENT HANDLERS
+
+
 // Create the variable for the current account inserted on the login, but it is empty. Then, we create an eventlistener for the login username field
 // so when the user inserts the username and clicks on login, the .find method looks for the account with that username and stores it on the currentAccount.
 // Then, at the if statement, we check with the ? if the current account is true, and if true, then check for the value of inserted pin against the user pin.
 // Inside the conditional, we set the welcome message to the name and changes the opacity of the body, which makes the page visible.
 // Also, restes the input values to zero and call the rest of the functions to show the movements.
-
 
 let currentAccount;
 
@@ -168,9 +170,20 @@ btnTransfer.addEventListener('click', e => {
   e.preventDefault();
   const amount = Number(inputTransferAmount.value);
   const receiver = accounts.find(acc => acc.username === inputTransferTo.value);
+  inputTransferAmount.value = '';
+  inputTransferTo.value = '';
   if(amount > 0 && receiver && currentAccount.balance >= amount && receiver.username !== currentAccount.username) {
   currentAccount.movements.push(-amount);
   receiver.movements.push(amount);
   updateUI(currentAccount);
+  }
+})
+
+btnClose.addEventListener('click', e => {
+  e.preventDefault();
+  if(inputCloseUsername.value === currentAccount.username && Number(inputClosePin.value) === currentAccount.pin){
+    const index = accounts.findIndex(acc => acc.username === currentAccount.username);
+    accounts.splice(index, 1);
+    containerApp.style.opacity = 0;
   }
 })
