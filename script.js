@@ -79,12 +79,15 @@ const movements = [200, 450, -400, 3000, -650, -130, 70, 1300];
 
 
 
-const displayMovements = function(acc) {
+const displayMovements = function(acc, sort = false) {
   // This function loops over the movements array of the given account, check if positive (deposit) or negative (withdraw) and create a variable that changes
   // the variables inside the container based on the data. Then inserts it to the html by the insertAdjacentHTML method.
+  // Also sets sort to false, to be able to sort when clicking on the button. The movs variable stores the sorted array.
   containerMovements.innerHTML = '';
 
-  acc.movements.forEach((move, i) => {
+  const movs = sort ? currentAccount.movements.slice().sort((a, b) => a - b) : currentAccount.movements;
+
+  movs.forEach((move, i) => {
 
     const type = move > 0 ? 'deposit' : 'withdrawal';
 
@@ -197,3 +200,14 @@ btnLoan.addEventListener('click', e => {
     updateUI(currentAccount);
   }
 })
+
+
+let sorted = false;
+
+btnSort.addEventListener('click', e => {
+  e.preventDefault();
+  displayMovements(currentAccount.movements, !sorted);
+  sorted = !sorted;
+})
+
+
