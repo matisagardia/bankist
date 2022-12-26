@@ -89,7 +89,26 @@ const inputClosePin = document.querySelector('.form__input--pin');
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+// Create a function to format the date on the movements. It takes a date (then called at the displayMovements function), and calculates
+// the difference with another date, to get the amount of days. Depending on the days passed, it returns a different message on the movement.
 
+const formatMovementDate = function(date) {
+
+  const calcDaysPassed = (date1, date2) => Math.round(Math.abs((date1 - date2) / (1000 * 60 * 60 * 24)));
+  const daysPassed = calcDaysPassed(new Date(), date);
+
+  if(daysPassed === 0) return 'Today';
+  if(daysPassed === 0) return 'Today';
+  if(daysPassed <= 7) return `${daysPassed} days ago`;
+  else {
+    const day = date.getDate();
+    const month = `${date.getMonth() + 1}`;
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+  }
+
+
+}
 
 const displayMovements = function(acc, sort = false) {
 
@@ -105,11 +124,7 @@ const displayMovements = function(acc, sort = false) {
   movs.forEach((move, i) => {
 
     const date = new Date(acc.movementsDates[i]);
-    const day = date.getDate();
-    const month = `${date.getMonth() + 1}`;
-    const year = date.getFullYear();
-    const displayDate = `${day}/${month}/${year}`;
-
+    const displayDate = formatMovementDate(date);
 
     const type = move > 0 ? 'deposit' : 'withdrawal';
 
