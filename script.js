@@ -170,13 +170,13 @@ const calcDisplaySummary = function (acc) {
   //Filter all the positive and negative moves and the accumulates all to display on the summary below the page
   //Calculates some percentaje of the deposits to generate the interest label based on each account interest
   const incomes = acc.movements.filter(mov => mov > 0).reduce((acc, mov) => acc + mov, 0);
-  labelSumIn.textContent = `${incomes}$`;
+  labelSumIn.textContent = formatCur(incomes, acc.locale, acc.currency);;
 
   const out = acc.movements.filter(mov => mov < 0).reduce((acc, mov) => acc + mov, 0);
-  labelSumOut.textContent = `${Math.abs(out).toFixed(2)}$`;
+  labelSumOut.textContent = formatCur(Math.abs(out), acc.locale, acc.currency);
 
   const interest = acc.movements.filter(mov => mov > 0).map(mov => mov * acc.interestRate/100).reduce((acc, mov) => acc + mov, 0);
-  labelSumInterest.textContent = `${interest.toFixed(2)}$`;
+  labelSumInterest.textContent = formatCur(interest, acc.locale, acc.currency);
 }
 
 const createUsername = function(accs) {
@@ -196,6 +196,34 @@ const updateUI = function(acc) {
   calcDisplayBalance(acc);
 }
 
+// function to start the timer to log out the account
+
+const startLogOutTimer = function() {
+  const tick = function(){
+
+    const min = String(Math.trunc(time / 60)).padStart(2, 0);
+    const sec = String(time % 60).padStart(2, 0);
+    labelTimer.textContent = `${min}:${sec}`;
+
+
+    if(time === 0) {
+      clearInterval(timer);
+      labelWelcome.textContent = `Log in to get started`;
+      containerApp.style.opacity = 0;
+    }
+
+    time--;
+}
+  let time = 120;
+  tick();
+
+  const timer = setInterval(tick, 1000);
+
+  return timer;
+}
+
+
+
 
 // EVENT HANDLERS
 
@@ -206,7 +234,7 @@ const updateUI = function(acc) {
 // Inside the conditional, we set the welcome message to the name and changes the opacity of the body, which makes the page visible.
 // Also, restes the input values to zero and call the rest of the functions to show the movements.
 
-let currentAccount;
+let currentAccount, timer;
 
 btnLogin.addEventListener('click', (e) => {
   e.preventDefault();
@@ -231,6 +259,10 @@ btnLogin.addEventListener('click', (e) => {
     inputLoginPin.value = '';
     inputLoginUsername.value = '';
     inputLoginPin.blur();
+
+    if(timer) clearInterval(timer);
+    timer = startLogOutTimer();
+
     updateUI(currentAccount);
   }
 });
@@ -254,7 +286,12 @@ btnTransfer.addEventListener('click', e => {
     currentAccount.movementsDates.push(new Date());
     receiver.movementsDates.push(new Date());
 
-  updateUI(currentAccount);
+    updateUI(currentAccount);
+
+    // reset timer
+
+    clearInterval(timer);
+    timer = startLogOutTimer();
   }
 })
 
@@ -272,16 +309,25 @@ btnClose.addEventListener('click', e => {
 
 // store the amount of the loan in the amount variable, checks if the amount is greater than 0 and if there is at least one movement in the account 
 // that is equal to the 10% of the requested loan. If thats true, then the amount is pushed to the movements property.
+// Added timeout to simulate the delay on a real transaction
 
 btnLoan.addEventListener('click', e => {
   e.preventDefault();
+
   const amount = Number(inputLoanAmount.value);
+
   if(amount > 0 && currentAccount.movements.some(mov => mov > amount * 0.1)) {
-    currentAccount.movements.push(amount);
+    
+    setTimeout(function() {
+      
+      currentAccount.movements.push(amount);
       // Add transfer date
       currentAccount.movementsDates.push(new Date().toISOString());
       console.log(currentAccount.movementsDates);
-      updateUI(currentAccount);
+      updateUI(currentAccount)}, 2500);
+      clearInterval(timer);
+      timer = startLogOutTimer();
+      inputLoanAmount.value = '';
   }
 })
 
