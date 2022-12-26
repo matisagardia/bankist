@@ -92,7 +92,7 @@ const inputClosePin = document.querySelector('.form__input--pin');
 // Create a function to format the date on the movements. It takes a date (then called at the displayMovements function), and calculates
 // the difference with another date, to get the amount of days. Depending on the days passed, it returns a different message on the movement.
 
-const formatMovementDate = function(date) {
+const formatMovementDate = function(date, locale) {
 
   const calcDaysPassed = (date1, date2) => Math.round(Math.abs((date1 - date2) / (1000 * 60 * 60 * 24)));
   const daysPassed = calcDaysPassed(new Date(), date);
@@ -101,13 +101,19 @@ const formatMovementDate = function(date) {
   if(daysPassed === 0) return 'Today';
   if(daysPassed <= 7) return `${daysPassed} days ago`;
   else {
-    const day = date.getDate();
-    const month = `${date.getMonth() + 1}`;
-    const year = date.getFullYear();
-    return `${day}/${month}/${year}`;
+    return new Intl.DateTimeFormat(locale).format(date);
   }
 
 
+}
+
+// Function to adapt the format of the values depending on the locale and currency of each accunt
+
+const formatCur = function(value, locale, currency) {
+  return new Intl.NumberFormat(locale, {
+      style: 'currency',
+      currency: currency
+    }).format(value);
 }
 
 const displayMovements = function(acc, sort = false) {
@@ -124,14 +130,16 @@ const displayMovements = function(acc, sort = false) {
   movs.forEach((move, i) => {
 
     const date = new Date(acc.movementsDates[i]);
-    const displayDate = formatMovementDate(date);
+    const displayDate = formatMovementDate(date, acc.locale);
+
+    const formattedMov = formatCur(move, acc.locale, acc.currency);
 
     const type = move > 0 ? 'deposit' : 'withdrawal';
 
     const html = `<div class="movements__row">
                   <div class="movements__type movements__type--${type}">${i + 1} ${type}</div>
                   <div class="movements__date">${displayDate}</div>
-                  <div class="movements__value">${move.toFixed(2)}</div>
+                  <div class="movements__value">${formattedMov}</div>
                   </div>`;
 
     containerMovements.insertAdjacentHTML('afterbegin', html);
@@ -153,7 +161,7 @@ const calcDisplayBalance = function(acc) {
   // Use the reduce method to add the balance values and display it.
   const balance = acc.movements.reduce((acc, value) => acc + value, 0);
   acc.balance = balance;
-  labelBalance.textContent = `${balance.toFixed(2)} $`;
+  labelBalance.textContent = formatCur(acc.balance, acc.locale, acc.currency);
 };
 
 
@@ -211,9 +219,8 @@ btnLogin.addEventListener('click', (e) => {
       hour: 'numeric',
       minute: 'numeric',
       day: 'numeric',
-      month: 'long',
+      month: 'numeric',
       year: 'numeric',
-      weekday: 'long'
     };
     const locale = navigator.language;
     labelDate.textContent = new Intl.DateTimeFormat(locale, options).format(now);
