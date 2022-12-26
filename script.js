@@ -92,9 +92,11 @@ const inputClosePin = document.querySelector('.form__input--pin');
 
 
 const displayMovements = function(acc, sort = false) {
+
   // This function loops over the movements array of the given account, check if positive (deposit) or negative (withdraw) and create a variable that changes
   // the variables inside the container based on the data. Then inserts it to the html by the insertAdjacentHTML method.
   // Also sets sort to false, to be able to sort when clicking on the button. The movs variable stores the sorted array.
+  // Creates a new date based on the index of the movements array to set it on each transfer.
 
   containerMovements.innerHTML = '';
 
@@ -102,10 +104,18 @@ const displayMovements = function(acc, sort = false) {
 
   movs.forEach((move, i) => {
 
+    const date = new Date(acc.movementsDates[i]);
+    const day = date.getDate();
+    const month = `${date.getMonth() + 1}`;
+    const year = date.getFullYear();
+    const displayDate = `${day}/${month}/${year}`;
+
+
     const type = move > 0 ? 'deposit' : 'withdrawal';
 
     const html = `<div class="movements__row">
                   <div class="movements__type movements__type--${type}">${i + 1} ${type}</div>
+                  <div class="movements__date">${displayDate}</div>
                   <div class="movements__value">${move.toFixed(2)}</div>
                   </div>`;
 
@@ -179,6 +189,16 @@ btnLogin.addEventListener('click', (e) => {
   e.preventDefault();
   currentAccount = accounts.find(acc => acc.username === inputLoginUsername.value);
 
+  // Setting the current date
+
+    const now = new Date();
+    const day = now.getDate();
+    const month = now.getMonth();
+    const year = now.getFullYear();
+    const hour = now.getHours();
+    const minutes = now.getMinutes();
+    labelDate.textContent = `${day}/${month}/${year}, ${hour}:${minutes}`;
+
   if(currentAccount?.pin === Number(inputLoginPin.value)) {
     labelWelcome.textContent = `Welcome back, ${currentAccount.owner.split(' ')[0]}`;
     containerApp.style.opacity = 100;
@@ -203,6 +223,11 @@ btnTransfer.addEventListener('click', e => {
   if(amount > 0 && receiver && currentAccount.balance >= amount && receiver.username !== currentAccount.username) {
   currentAccount.movements.push(-amount);
   receiver.movements.push(amount);
+
+  // Add transfer date
+    currentAccount.movementsDates.push(new Date());
+    receiver.movementsDates.push(new Date());
+
   updateUI(currentAccount);
   }
 })
@@ -227,16 +252,11 @@ btnLoan.addEventListener('click', e => {
   const amount = Number(inputLoanAmount.value);
   if(amount > 0 && currentAccount.movements.some(mov => mov > amount * 0.1)) {
     currentAccount.movements.push(amount);
-    updateUI(currentAccount);
+      // Add transfer date
+      currentAccount.movementsDates.push(new Date().toISOString());
+      console.log(currentAccount.movementsDates);
+      updateUI(currentAccount);
   }
 })
 
-// Setting the current date
 
-const now = new Date();
-const day =` ${now.getDate()}`.padStart(2, 0);
-const month = `${now.getMonth()}`.padStart(2, 0) + 1;
-const year = now.getFullYear();
-const hour = now.getHours();
-const minutes = now.getMinutes();
-labelDate.textContent = `${day}/${month}/${year}, ${hour}:${minutes}`;
